@@ -32,9 +32,9 @@ def create_charlists():
 
 
 class Window(Gtk.Window):
-    
+
     def __init__(self):
-        
+
         Gtk.Window.__init__(self)
         # window defs
         self.set_decorated(False)
@@ -56,10 +56,10 @@ class Window(Gtk.Window):
         self.searchentry = Gtk.Entry()
         self.maingrid.attach(self.searchentry, 0, 0, 1, 1)
         self.instructionlabel = Gtk.Label("\tType a character\t")
-        self.set_style(self.instructionlabel, "instruction")   
+        self.set_style(self.instructionlabel, "instruction")
         self.maingrid.attach(self.instructionlabel, 1, 0, 1, 1)
         # set style
-        self.set_style(self.searchentry, "label")    
+        self.set_style(self.searchentry, "label")
         self.searchentry.set_max_width_chars(1)
         self.searchentry.set_width_chars(1)
         self.searchentry.connect("changed", self.search_new)
@@ -73,7 +73,7 @@ class Window(Gtk.Window):
             self.provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
         )
-        
+
     def search_new(self, entry):
         self.instructionlabel.destroy()
         currtext = entry.get_text()
@@ -107,9 +107,9 @@ class Window(Gtk.Window):
             if self.curr_wmclass in ["Tilix"]:
                 return [self.curr_subject, self.curr_wmclass]
         except IndexError:
-            pass        
-        
-    def get_key(self, button, val, string = None):
+            pass
+
+    def get_key(self, button, val, string=None):
         key = Gdk.keyval_name(val.keyval)
         if key == "Escape":
             self.wrapitup()
@@ -139,7 +139,7 @@ class Window(Gtk.Window):
 
     def wrapitup(self):
         self.destroy()
-        
+
     def paste(self, button, char, *args):
         windata = self.get_activewin()
         if windata:
@@ -161,19 +161,19 @@ def checkonwin():
     screendata.force_update()
     for w in screendata.get_windows_stacked():
         if w.get_name() == "Charlookup":
-            return w #w.get_xid()
+            return w
 
-    
+
 def toggle_win(arg):
     # create or destroy the window
     win = checkonwin()
     if not win:
         Window()
-        subprocess.Popen(os.path.join(filepath, "raise.sh"))   
+        subprocess.Popen(os.path.join(filepath, "raise.sh"))
     else:
         subprocess.Popen(["wmctrl", "-ic", str(win.get_xid())])
 
-        
+
 def startup_stuff():
     # start "deamon"
     Keybinder.init()
