@@ -9,7 +9,7 @@ Quickly find and choose the equivalent locale character for an ascii character
 
 # N.B.
 
-- The character data file just contains a few samples (a, e, c, n). Needs to be populated soon
+- The character data file isn't quite completed yet (up to o now). Needs to be populated further soon
 - depends on:
 
  - Gtk, Wnck, Gdk, Gio, Keybinder
