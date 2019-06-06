@@ -5,10 +5,11 @@ Quickly find and choose the equivalent locale character for an ascii character
 - Place all files in one and the same directory
 - Run `quickchar`, inside the folder
 - Press (at this moment) Super+Alt+C to call the window
+- Type a character, and all its derivates will appear. Click one (or tab to the targeted character and press Return) and the character will be pasted into the document
 - Press again to toggle visibility, or Escape to hide
 
 
-![screenshot](https://github.com/UbuntuBudgie/QuickChar/blob/master/screenshot.png)
+  ![screenshot](https://github.com/UbuntuBudgie/QuickChar/blob/master/screenshot.png)
 
 
 # N.B.
