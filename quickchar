@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+import os
+import gi
+gi.require_version("Gtk", "3.0")
+gi.require_version('Wnck', '3.0')
+gi.require_version('Keybinder', '3.0')
+from gi.repository import Gtk, Wnck, Gdk, Gio, Keybinder
+import subprocess
+import pyperclip
+import pyautogui
+
+
+filepath = os.path.dirname(os.path.abspath(__file__))
+
+
+css_data = """
+.label {
+  font-weight: bold;
+  color: blue;
+}
+.instruction {
+  color: grey;
+  font-style: italic;
+}
+"""
+
+
+def create_charlists():
+    chardata = []
+    file = os.path.join(filepath, "chardata")
+    return [l.strip().split() for l in open(file).readlines()]
+
+
+class Window(Gtk.Window):
+    
+    def __init__(self):
+        
+        Gtk.Window.__init__(self)
+        # window defs
+        self.set_decorated(False)
+        self.set_keep_above(True)
+        self.set_focus()
+        self.set_title("Charlookup")
+        self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        self.connect("key-press-event", self.get_key)
+        self.has_toplevel_focus()
+        self.set_skip_taskbar_hint(True)
+        # let's initiate a few things
+        self.surpass_signal = False
+        self.currfamily = None
+        # gui stuff
+        self.maingrid = Gtk.Grid()
+        self.add(self.maingrid)
+        self.provider = Gtk.CssProvider.new()
+        self.provider.load_from_data(css_data.encode())
+        self.searchentry = Gtk.Entry()
+        self.maingrid.attach(self.searchentry, 0, 0, 1, 1)
+        self.instructionlabel = Gtk.Label("\tType a character\t")
+        self.set_style(self.instructionlabel, "instruction")   
+        self.maingrid.attach(self.instructionlabel, 1, 0, 1, 1)
+        # set style
+        self.set_style(self.searchentry, "label")    
+        self.searchentry.set_max_width_chars(1)
+        self.searchentry.set_width_chars(1)
+        self.searchentry.connect("changed", self.search_new)
+        self.show_all()
+
+    def set_style(self, widget, style):
+        widget_context = widget.get_style_context()
+        widget_context.add_class(style)
+        Gtk.StyleContext.add_provider(
+            widget_context,
+            self.provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+        )
+        
+    def search_new(self, entry):
+        self.instructionlabel.destroy()
+        currtext = entry.get_text()
+        if any([len(currtext) > 1, self.surpass_signal is False]):
+            search = currtext[-1]
+            entry.set_text(search)
+            self.set_row(search)
+            self.surpass_signal = True
+        else:
+            self.surpass_signal = False
+
+    def get_activewin(self):
+        winlist = []
+        winnames = []
+        wm_classes = []
+        # only on startup, else from file (wrapper script)
+        self.screendata = Wnck.Screen.get_default()
+        self.screendata.force_update()
+        wlist = [
+            w for w in self.screendata.get_windows_stacked()
+        ]
+        for w in wlist:
+            if w.get_window_type() == Wnck.WindowType.NORMAL:
+                winlist.append(w.get_xid())
+                winnames.append(w.get_name())
+                wm_classes.append(w.get_class_group_name())
+        try:
+            index = winnames.index("Charlookup") - 1
+            self.curr_subject = winlist[index]
+            self.curr_wmclass = wm_classes[index]
+            if self.curr_wmclass in ["Tilix"]:
+                return [self.curr_subject, self.curr_wmclass]
+        except IndexError:
+            pass        
+        
+    def get_key(self, button, val, string = None):
+        key = Gdk.keyval_name(val.keyval)
+        if key == "Escape":
+            self.wrapitup()
+        elif all([key in ["Return", "KP_Enter", "Enter"], string]):
+            self.paste(button, string)
+
+    def set_row(self, searchval):
+        row = []
+        try:
+            self.maingrid.remove(self.currfamily)
+        except (TypeError, AttributeError):
+            print("no family")
+        for r in chardata:
+            if r[0] == searchval:
+                self.currfamily = Gtk.HBox()
+                row = r[1:]
+                break
+        self.currfamily = Gtk.HBox()
+        for s in row:
+            button = Gtk.Button(s)
+            button.connect("key-press-event", self.get_key, s)
+            self.currfamily.pack_start(button, False, False, 0)
+            button.connect("pressed", self.paste, s)
+        self.maingrid.attach(self.currfamily, 1, 0, 1, 1)
+        self.maingrid.show_all()
+        self.resize(10, 10)
+
+    def wrapitup(self):
+        self.destroy()
+        
+    def paste(self, button, char, *args):
+        windata = self.get_activewin()
+        if windata:
+            self.curr_subject = windata[0]
+            wmclass = windata[1]
+            pyperclip.copy(char)
+            subprocess.call(["wmctrl", "-ia", str(self.curr_subject)])
+            # set exception to the rule
+            if wmclass == "Tilix":
+                pyautogui.hotkey('shift', 'ctrl', 'v')
+            # the default Ctrl-v
+            else:
+                pyautogui.hotkey('ctrl', 'v')
+        self.destroy()
+
+
+def checkonwin():
+    screendata = Wnck.Screen.get_default()
+    screendata.force_update()
+    for w in screendata.get_windows_stacked():
+        if w.get_name() == "Charlookup":
+            return w #w.get_xid()
+
+    
+def toggle_win(arg):
+    # create or destroy the window
+    win = checkonwin()
+    if not win:
+        Window()
+        subprocess.Popen(os.path.join(filepath, "raise.sh"))   
+    else:
+        subprocess.Popen(["wmctrl", "-ic", str(win.get_xid())])
+
+        
+def startup_stuff():
+    # start "deamon"
+    Keybinder.init()
+    if Keybinder.supported():
+        Keybinder.bind("<Super><Alt>c", toggle_win)
+    Gtk.main()
+
+
+chardata = create_charlists()
+startup_stuff()
