@@ -5,6 +5,7 @@ Quickly find and choose the equivalent locale character for an ascii character
 - Place all files in one directory
 - Run `quickchar`
 - Press (at this moment) Super+Alt+C to call the window
+- Press again to toggle visibility, or Escape to hide
 
 # N.B.
 
