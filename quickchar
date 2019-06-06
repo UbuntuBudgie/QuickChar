@@ -102,10 +102,9 @@ class Window(Gtk.Window):
                 wm_classes.append(w.get_class_group_name())
         try:
             index = winnames.index("Charlookup") - 1
-            self.curr_subject = winlist[index]
-            self.curr_wmclass = wm_classes[index]
-            if self.curr_wmclass in ["Tilix"]:
-                return [self.curr_subject, self.curr_wmclass]
+            subj = winlist[index]
+            subj_wmclass = wm_classes[index]
+            return [subj, subj_wmclass]
         except IndexError:
             pass
 
@@ -121,7 +120,7 @@ class Window(Gtk.Window):
         try:
             self.maingrid.remove(self.currfamily)
         except (TypeError, AttributeError):
-            print("no family")
+            pass
         for r in chardata:
             if r[0] == searchval:
                 self.currfamily = Gtk.HBox()
@@ -143,10 +142,10 @@ class Window(Gtk.Window):
     def paste(self, button, char, *args):
         windata = self.get_activewin()
         if windata:
-            self.curr_subject = windata[0]
+            win = windata[0]
             wmclass = windata[1]
             pyperclip.copy(char)
-            subprocess.call(["wmctrl", "-ia", str(self.curr_subject)])
+            subprocess.call(["wmctrl", "-ia", str(win)])
             # set exception to the rule
             if wmclass == "Tilix":
                 pyautogui.hotkey('shift', 'ctrl', 'v')
