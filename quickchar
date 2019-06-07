@@ -68,7 +68,7 @@ class Window(Gtk.Window):
         self.provider.load_from_data(css_data.encode())
         self.searchentry = Gtk.Entry()
         self.maingrid.attach(self.searchentry, 0, 0, 1, 1)
-        self.instructionlabel = Gtk.Label("\tType a character\t")
+        self.instructionlabel = Gtk.Label(label="\tType a character\t")
         self.set_style(self.instructionlabel, "instruction")
         self.maingrid.attach(self.instructionlabel, 1, 0, 1, 1)
         # set style
@@ -85,7 +85,7 @@ class Window(Gtk.Window):
             )
         except FileNotFoundError:
             return []
-            
+
     def set_style(self, widget, style):
         widget_context = widget.get_style_context()
         widget_context.add_class(style)
@@ -155,7 +155,7 @@ class Window(Gtk.Window):
                 last_used = item[1]
                 break
         for s in row:
-            button = Gtk.Button(s)
+            button = Gtk.Button(label=s)
             self.set_style(button, "button")
             button.connect("key-press-event", self.get_key, s)
             self.currfamily.pack_start(button, False, False, 0)
@@ -195,7 +195,7 @@ class Window(Gtk.Window):
                 self.pu_data[index] = newdata
             else:
                 self.pu_data.append(newdata)
-            open(self.previously_used, "wt").write(str(self.pu_data))            
+            open(self.previously_used, "wt").write(str(self.pu_data))
         self.destroy()
 
 
