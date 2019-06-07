@@ -9,9 +9,14 @@ import subprocess
 import pyperclip
 import pyautogui
 import time
+import ast
 
 
 filepath = os.path.dirname(os.path.abspath(__file__))
+prefspath = os.path.join(
+    os.environ["HOME"], ".config", "quickchar"
+)
+os.makedirs(prefspath, exist_ok=True)
 
 
 css_data = """
@@ -22,6 +27,9 @@ css_data = """
 .instruction {
   color: grey;
   font-style: italic;
+}
+.button {
+  border-radius: 0px;
 }
 """
 
@@ -49,6 +57,10 @@ class Window(Gtk.Window):
         # let's initiate a few things
         self.surpass_signal = False
         self.currfamily = None
+        self.previously_used = os.path.join(
+            prefspath, "previously_used",
+        )
+        self.pu_data = self.read_previous()
         # gui stuff
         self.maingrid = Gtk.Grid()
         self.add(self.maingrid)
@@ -66,6 +78,14 @@ class Window(Gtk.Window):
         self.searchentry.connect("changed", self.search_new)
         self.show_all()
 
+    def read_previous(self):
+        try:
+            return ast.literal_eval(
+                open(self.previously_used).read()
+            )
+        except FileNotFoundError:
+            return []
+            
     def set_style(self, widget, style):
         widget_context = widget.get_style_context()
         widget_context.add_class(style)
@@ -128,11 +148,20 @@ class Window(Gtk.Window):
                 row = r[1:]
                 break
         self.currfamily = Gtk.HBox()
+        # get searchval index in pu_data
+        last_used = None
+        for item in self.pu_data:
+            if item[0] == searchval:
+                last_used = item[1]
+                break
         for s in row:
             button = Gtk.Button(s)
+            self.set_style(button, "button")
             button.connect("key-press-event", self.get_key, s)
             self.currfamily.pack_start(button, False, False, 0)
             button.connect("pressed", self.paste, s)
+            if s == last_used:
+                self.set_style(button, Gtk.STYLE_CLASS_SUGGESTED_ACTION)
         self.maingrid.attach(self.currfamily, 1, 0, 1, 1)
         self.maingrid.show_all()
         self.resize(10, 10)
@@ -154,6 +183,19 @@ class Window(Gtk.Window):
             # the default Ctrl-v
             else:
                 pyautogui.hotkey("ctrl", "v")
+            # update last-used
+            family = self.searchentry.get_text()
+            index = None
+            for item in self.pu_data:
+                if item[0] == family:
+                    index = self.pu_data.index(item)
+                    break
+            newdata = [family, char]
+            if index is not None:
+                self.pu_data[index] = newdata
+            else:
+                self.pu_data.append(newdata)
+            open(self.previously_used, "wt").write(str(self.pu_data))            
         self.destroy()
 
 
