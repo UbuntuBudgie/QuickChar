@@ -57,9 +57,13 @@ class Window(Gtk.Window):
         # let's initiate a few things
         self.surpass_signal = False
         self.currfamily = None
+        self.tail = None
+        self.currpage = 0
+        self.pages = []
         self.previously_used = os.path.join(
             prefspath, "previously_used",
         )
+        self.previous_ison = None
         self.pu_data = self.read_previous()
         # gui stuff
         self.maingrid = Gtk.Grid()
@@ -68,7 +72,7 @@ class Window(Gtk.Window):
         self.provider.load_from_data(css_data.encode())
         self.searchentry = Gtk.Entry()
         self.maingrid.attach(self.searchentry, 0, 0, 1, 1)
-        self.instructionlabel = Gtk.Label(label="\tType a character\t")
+        self.instructionlabel = Gtk.Label("\tType a character\t")
         self.set_style(self.instructionlabel, "instruction")
         self.maingrid.attach(self.instructionlabel, 1, 0, 1, 1)
         # set style
@@ -136,10 +140,59 @@ class Window(Gtk.Window):
         elif all([key in ["Return", "KP_Enter", "Enter"], string]):
             self.paste(button, string)
 
+    def makebutton(self, s, lastpicked, page=None):
+        button = Gtk.Button(s)
+        self.set_style(button, "button")
+        button.connect("key-press-event", self.get_key, s)
+        button.connect("pressed", self.paste, s)
+        if lastpicked:
+            self.set_style(button, Gtk.STYLE_CLASS_SUGGESTED_ACTION)
+            if page:
+                self.currpage = page - 1
+        return button
+
+    def maketail(self):
+        # tail
+        buttontail = Gtk.HBox()
+        # browse buttons
+        right_icon = Gtk.Image.new_from_icon_name(
+            "go-next-symbolic", Gtk.IconSize.BUTTON
+        )            
+        browseright = Gtk.Button()
+        browseright.set_image(right_icon)
+        browseright.set_relief(Gtk.ReliefStyle.NONE)
+        left_icon = Gtk.Image.new_from_icon_name(
+            "go-previous-symbolic", Gtk.IconSize.BUTTON
+        )            
+        browseleft = Gtk.Button()
+        browseleft.set_image(left_icon)
+        browseleft.set_relief(Gtk.ReliefStyle.NONE)
+        buttontail.pack_start(Gtk.Label(label="  "), False, False, 0)
+        buttontail.pack_start(browseleft, False, False, 0)
+        buttontail.pack_start(browseright, False, False, 0)
+        browseright.connect("clicked", self.go_nextpage, "right")
+        browseleft.connect("clicked", self.go_nextpage, "left")
+        return buttontail
+
+    def go_nextpage(self, button, direction):
+        if direction == "right":
+            n_pages = len(self.pages)
+            self.currpage = self.currpage + 1
+            self.currpage = self.currpage if self.currpage < n_pages else n_pages - 1   
+        elif direction == "left":
+            self.currpage = self.currpage - 1
+            self.currpage = self.currpage if self.currpage >= 0 else 0
+        self.currfamily.set_visible_child_name(self.pages[self.currpage]);
+
     def set_row(self, searchval):
         row = []
+        self.previous_ison = "Page1"
         try:
             self.maingrid.remove(self.currfamily)
+        except (TypeError, AttributeError):
+            pass
+        try:
+            self.tail.destroy()
         except (TypeError, AttributeError):
             pass
         for r in chardata:
@@ -147,22 +200,60 @@ class Window(Gtk.Window):
                 self.currfamily = Gtk.HBox()
                 row = r[1:]
                 break
-        self.currfamily = Gtk.HBox()
-        # get searchval index in pu_data
+        # get last used
         last_used = None
         for item in self.pu_data:
             if item[0] == searchval:
                 last_used = item[1]
                 break
-        for s in row:
-            button = Gtk.Button(label=s)
-            self.set_style(button, "button")
-            button.connect("key-press-event", self.get_key, s)
-            self.currfamily.pack_start(button, False, False, 0)
-            button.connect("pressed", self.paste, s)
-            if s == last_used:
-                self.set_style(button, Gtk.STYLE_CLASS_SUGGESTED_ACTION)
-        self.maingrid.attach(self.currfamily, 1, 0, 1, 1)
+        # create widget
+        if len(row) > 10:
+            self.currpage = 0
+            self.pages = []
+            # create stack
+            self.currfamily = Gtk.Stack()
+            self.currfamily.set_transition_type(
+                Gtk.StackTransitionType.SLIDE_LEFT_RIGHT
+            )
+            self.currfamily.set_transition_duration(500);
+            self.currfamily.set_vexpand(True)
+            self.currfamily.set_hexpand(True)
+            n = 1
+            rownumber = 1
+            newbox = Gtk.HBox()
+            for s in row:
+                button = self.makebutton(s, s == last_used, rownumber)
+                newbox.pack_start(button, False, False, 0)
+                if n == 10:
+                    
+                    pagename = "Page" + str(rownumber)
+                    self.pages.append(pagename)
+                    self.currfamily.add_named(newbox, pagename)
+                    n = 0
+                    rownumber = rownumber + 1
+                    newbox = Gtk.HBox()
+                n = n + 1
+            # last row
+            if n > 2:
+                pagename = "Page" + str(rownumber)
+                self.pages.append(pagename)
+                
+                print("page:", "Page" + str(rownumber))
+                self.currfamily.add_named(newbox, pagename)
+                n = 1
+            # tail
+            self.tail = self.maketail()
+            # throw it on the window
+            self.maingrid.attach(self.currfamily, 1, 0, 1, 1)
+            self.maingrid.attach(self.tail, 100, 0, 1, 1)
+            self.maingrid.show_all()
+            self.currfamily.set_visible_child_name(self.pages[self.currpage])
+        else:
+            self.currfamily = Gtk.HBox()
+            for s in row:
+                button = self.makebutton(s, s == last_used)
+                self.currfamily.pack_start(button, False, False, 0)
+            self.maingrid.attach(self.currfamily, 1, 0, 1, 1)
         self.maingrid.show_all()
         self.resize(10, 10)
 
@@ -182,6 +273,7 @@ class Window(Gtk.Window):
                 pyautogui.hotkey('shift', 'ctrl', 'v')
             # the default Ctrl-v
             else:
+                # subprocess.Popen(["xdotool", "key", "Control_L+v"])
                 pyautogui.hotkey("ctrl", "v")
             # update last-used
             family = self.searchentry.get_text()
