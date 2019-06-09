@@ -27,6 +27,7 @@ QuickChar depends on:
  - pyautogui (Pip install):
 
    `sudo apt install python3-pip`
+
    `pip install pyautogui`
 
  - xlib (to run pyautogui)
