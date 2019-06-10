@@ -7,9 +7,9 @@ gi.require_version('Keybinder', '3.0')
 from gi.repository import Gtk, Wnck, Gdk, Gio, Keybinder
 import subprocess
 import pyperclip
-import pyautogui
 import time
 import ast
+import charpaste
 
 
 filepath = os.path.dirname(os.path.abspath(__file__))
@@ -71,7 +71,9 @@ class Window(Gtk.Window):
         self.provider.load_from_data(css_data.encode())
         self.searchentry = Gtk.Entry()
         self.maingrid.attach(self.searchentry, 0, 0, 1, 1)
-        self.instructionlabel = Gtk.Label(label="\tType a character\t")
+        self.instructionlabel = Gtk.Label(
+            label="\tType a character to access its derivatives\t"
+        )
         self.set_style(self.instructionlabel, "instruction")
         self.maingrid.attach(self.instructionlabel, 1, 0, 1, 1)
         # set style
@@ -175,12 +177,12 @@ class Window(Gtk.Window):
 
     def go_nextpage(self, button, direction):
         if direction == "right":
-            n_pages = len(self.pages)
+            maxi = len(self.pages) - 1
             self.currpage = self.currpage + 1
-            self.currpage = self.currpage if self.currpage < n_pages else None
+            self.currpage = self.currpage if self.currpage <= maxi else maxi
         elif direction == "left":
             self.currpage = self.currpage - 1
-            self.currpage = self.currpage if self.currpage >= 0 else None
+            self.currpage = self.currpage if self.currpage >= 0 else 0
         if self.currpage is not None:
             self.currfamily.set_visible_child_name(self.pages[self.currpage])
             self.manage_browsbuttons_active()
@@ -246,7 +248,7 @@ class Window(Gtk.Window):
                     newbox = Gtk.HBox()
                 n = n + 1
             # last row
-            if n > 2:
+            if n > 1:
                 pagename = "Page" + str(rownumber)
                 self.pages.append(pagename)
                 self.currfamily.add_named(newbox, pagename)
@@ -281,12 +283,10 @@ class Window(Gtk.Window):
             time.sleep(0.05)
             # set exception to the rule
             if wmclass == "Tilix":
-                pyautogui.hotkey('shift', 'ctrl', 'v')
+                charpaste.paste_char("Shift_L", "Control_L", 'v')
             # the default Ctrl-v
             else:
-                # subprocess.Popen(["xdotool", "key", "Control_L+v"])
-                # ^^^ slightly slower :(
-                pyautogui.hotkey("ctrl", "v")
+                charpaste.paste_char("Control_L", "v")
             # update last-used
             family = self.searchentry.get_text()
             index = None
