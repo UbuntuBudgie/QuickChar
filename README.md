@@ -24,12 +24,6 @@ QuickChar depends on:
 
    `sudo apt install python3-pyperclip`
 
- - pyautogui (Pip install):
-
-   `sudo apt install python3-pip`
-
-   `pip install pyautogui`
-
  - xlib (to run pyautogui)
 
    `sudo apt install python3-xlib`
