@@ -101,6 +101,10 @@ class Window(Gtk.Window):
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
         )
 
+    def remove_style(self, widget, style):
+        widget_context = widget.get_style_context()
+        widget_context.remove_class(style)
+
     def search_new(self, entry):
         self.instructionlabel.destroy()
         currtext = entry.get_text()
@@ -142,11 +146,20 @@ class Window(Gtk.Window):
         elif all([key in ["Return", "KP_Enter", "Enter"], string]):
             self.paste(button, string)
 
+    def mark_focussed(self, button, event, val):
+        button.grab_focus()
+        self.set_style(button, Gtk.STYLE_CLASS_SUGGESTED_ACTION)
+
+    def mark_unfocussed(self, button, event, val):
+        self.remove_style(button, Gtk.STYLE_CLASS_SUGGESTED_ACTION)
+
     def makebutton(self, s, lastpicked, page=None):
         button = Gtk.Button(label=s)
         self.set_style(button, "button")
         button.connect("key-press-event", self.get_key, s)
         button.connect("pressed", self.paste, s)
+        button.connect("focus-in-event", self.mark_focussed, s)
+        button.connect("focus-out-event", self.mark_unfocussed, s)
         if lastpicked:
             self.tofocus = button
             self.set_style(button, Gtk.STYLE_CLASS_SUGGESTED_ACTION)
