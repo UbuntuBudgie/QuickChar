@@ -290,6 +290,8 @@ class Window(Gtk.Window):
         self.resize(10, 10)
 
     def wrapitup(self):
+        settings = Gio.Settings.new("org.ubuntubudgie.quickchar")
+        settings.set_boolean("showapp", False)
         self.destroy()
 
     def paste(self, button, char, *args):
@@ -319,34 +321,15 @@ class Window(Gtk.Window):
             else:
                 self.pu_data.append(newdata)
             open(self.previously_used, "wt").write(str(self.pu_data))
-        self.destroy()
+        self.wrapitup()
 
+chardata = create_charlists()
 
-def checkonwin():
-    screendata = Wnck.Screen.get_default()
-    screendata.force_update()
-    for w in screendata.get_windows_stacked():
-        if w.get_name() == "Charlookup":
-            return w
-
-
-def toggle_win(arg):
-    # create or destroy the window
-    win = checkonwin()
-    if not win:
-        Window()
-        subprocess.Popen(os.path.join(filepath, "raise.sh"))
-    else:
-        subprocess.Popen(["wmctrl", "-ic", str(win.get_xid())])
-
-
-def startup_stuff():
-    # start "deamon"
-    Keybinder.init()
-    if Keybinder.supported():
-        Keybinder.bind("<Super><Alt>c", toggle_win)
+def main():
+    m = Window()
+    m.connect("destroy", Gtk.main_quit)
     Gtk.main()
 
 
-chardata = create_charlists()
-startup_stuff()
+if __name__ == "__main__":
+    main()
