@@ -12,7 +12,8 @@ import ast
 import charpaste
 
 
-filepath = os.path.dirname(os.path.abspath(__file__))
+#filepath = os.path.dirname(os.path.abspath(__file__))
+filepath = '/usr/share/quickchar'
 prefspath = os.path.join(
     os.environ["HOME"], ".config", "quickchar"
 )
