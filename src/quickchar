@@ -12,7 +12,7 @@ import ast
 import charpaste
 
 
-#filepath = os.path.dirname(os.path.abspath(__file__))
+# filepath = os.path.dirname(os.path.abspath(__file__))
 filepath = '/usr/share/quickchar'
 prefspath = os.path.join(
     os.environ["HOME"], ".config", "quickchar"
@@ -324,7 +324,9 @@ class Window(Gtk.Window):
             open(self.previously_used, "wt").write(str(self.pu_data))
         self.wrapitup()
 
+
 chardata = create_charlists()
+
 
 def main():
     m = Window()
