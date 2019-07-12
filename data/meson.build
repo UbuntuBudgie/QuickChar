@@ -10,6 +10,11 @@ install_data(
 )
 
 install_data(
+    'quickchar.desktop',
+    install_dir: join_paths(datadir, 'applications')
+)
+
+install_data(
     'quickchar.bde',
     install_dir: join_paths(datadir, 'budgie-extras-daemon')
 )

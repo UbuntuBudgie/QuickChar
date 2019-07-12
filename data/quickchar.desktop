@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=QuickChar
+Exec=quickchar
+Icon=gnome-characters
+Categories=GNOME;GTK;Utility;
+Keywords=characters;unicode;punctuation;letters;
