@@ -6,6 +6,10 @@
             <summary>Show the application</summary>
             <default>false</default>
         </key>
+        <key type="b" name="enable-quickchar">
+            <summary>Run quickchar</summary>
+            <default>false</default>
+        </key>
     </schema>
 </schemalist>
 

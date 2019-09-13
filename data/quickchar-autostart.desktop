@@ -1,9 +1,8 @@
-
 [Desktop Entry]
 Type=Application
 Name=QuickChar
-Exec=quickchar --autostart
+Exec=quickchar
 NoDisplay=true
-AutostartCondition=GSettings org.ubuntubudgie.quickchar showapp
+AutostartCondition=GSettings org.ubuntubudgie.quickchar enable-quickchar
 X-MATE-AutoRestart=true
 X-GNOME-AutoRestart=true
