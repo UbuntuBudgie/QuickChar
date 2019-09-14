@@ -9,7 +9,7 @@ import time
 import ast
 import charpaste
 import sys
-
+import dbus
 
 """
 Budgie QuickChar
@@ -33,9 +33,6 @@ prefspath = os.path.join(
     os.environ["HOME"], ".config", "quickchar"
 )
 os.makedirs(prefspath, exist_ok=True)
-
-quickmessage = """Press Control + Alt + v to call Quickchar
-Logout/Login for changes to take effect"""
 
 
 css_data = """
@@ -354,7 +351,7 @@ class QuickChar:
                 self.window.destroy()
             except AttributeError:
                 pass
-
+        
     def raise_quickchar(self, scr, window):
         if window.get_name() == "Charlookup":
             now = GdkX11.x11_get_server_time(self.window.get_window())
@@ -381,16 +378,33 @@ class ControlWindow(Gtk.Window):
         toggle_quickchar.set_active(self.runonstartup)
         ok_button = Gtk.Button.new_with_label("Close")
         ok_button.connect("clicked", Gtk.main_quit)
-        instruct = Gtk.Label(label=quickmessage)
+        self.get_instructions()
         empty = Gtk.Label(label="")
         self.maingrid.attach(toggle_quickchar, 1, 1, 1, 1)
         self.maingrid.attach(empty, 1, 3, 1, 1)
-        self.maingrid.attach(instruct, 1, 4, 1, 1)
         toggle_quickchar.connect("toggled", self.apply_change)
         self.maingrid.attach(ok_button, 99, 99, 1, 1)
         self.connect("destroy", Gtk.main_quit)
         self.show_all()
         Gtk.main()
+
+    def get_instructions(self):
+        shortcut = 'Use shortcut key: '
+        keyname = ""
+        try:
+            interface = 'org.UbuntuBudgie.ExtrasDaemon'
+            path = '/org/ubuntubudgie/extrasdaemon'
+            obj = dbus.SessionBus().get_object(interface, path)
+            keyname = obj.GetShortcut(
+                "quickchar", dbus_interface=interface
+            )
+            print("keyname", keyname)
+        except dbus.exceptions.DBusException:
+            print("BudgieExtrasDaemon error:")
+
+        if keyname != "":
+            instruction = Gtk.Label(label=shortcut + keyname)
+            self.maingrid.attach(instruction, 1, 4, 1, 1)
 
     def apply_change(self, button):
         self.settings.set_boolean("enable-quickchar", button.get_active())
