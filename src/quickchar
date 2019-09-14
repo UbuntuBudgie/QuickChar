@@ -11,6 +11,7 @@ import charpaste
 import sys
 import dbus
 
+
 """
 Budgie QuickChar
 Author: Jacob Vlijm
@@ -351,7 +352,7 @@ class QuickChar:
                 self.window.destroy()
             except AttributeError:
                 pass
-        
+
     def raise_quickchar(self, scr, window):
         if window.get_name() == "Charlookup":
             now = GdkX11.x11_get_server_time(self.window.get_window())
