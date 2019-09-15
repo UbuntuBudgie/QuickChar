@@ -405,7 +405,12 @@ class ControlWindow(Gtk.Window):
 
         if keyname != "":
             instruction = Gtk.Label(label=shortcut + keyname)
-            self.maingrid.attach(instruction, 1, 4, 1, 1)
+
+        else:
+            msg = "Logout/Login for changes to take effect"
+            instruction = Gtk.Label(label=msg)
+
+        self.maingrid.attach(instruction, 1, 4, 1, 1)
 
     def apply_change(self, button):
         self.settings.set_boolean("enable-quickchar", button.get_active())
