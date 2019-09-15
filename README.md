@@ -20,10 +20,6 @@ QuickChar depends on:
 
  - Gtk, Wnck, Gdk, Gio
 
- - pyperclip
-
-   `sudo apt install python3-pyperclip`
-
  - xlib (to run pyautogui)
 
    `sudo apt install python3-xlib`
