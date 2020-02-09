@@ -308,7 +308,7 @@ class Window(Gtk.Window):
             win = windata[0]
             wmclass = windata[1]
             self.clipboard.set_text(char, -1)
-            subprocess.call(["wmctrl", "-ia", str(win)])
+            subprocess.call(["/usr/bin/wmctrl", "-ia", str(win)])
             time.sleep(0.05)
             # set exception to the rule
             if wmclass == "Tilix":
