@@ -337,7 +337,9 @@ class QuickChar:
     def __init__(self):
         self.settings = Gio.Settings.new("org.ubuntubudgie.quickchar")
         self.screendata = Wnck.Screen.get_default()
-        self.screendata.connect("window-opened", self.raise_quickchar)
+        self.screendata.force_update()
+        if self.screendata:
+            self.screendata.connect("window-opened", self.raise_quickchar)
         self.settings.connect("changed::showapp", self.callwindow)
         self.chardata = self.create_charlists()
         self.window = None
