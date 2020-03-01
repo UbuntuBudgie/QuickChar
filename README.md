@@ -18,7 +18,7 @@ Setup:
 
 QuickChar depends on:
 
- - Gtk, Wnck, Gdk, Gio
+ - Gtk, Wnck, Gdk, Gio, wmctrl
 
  - xlib (to run pyautogui)
 
