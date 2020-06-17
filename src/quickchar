@@ -361,7 +361,7 @@ class QuickChar:
 
     def create_charlists(self):
         file = os.path.join(filepath, "chardata")
-        return [l.strip().split() for l in open(file).readlines()]
+        return [sl.strip().split() for sl in open(file).readlines()]
 
 
 class ControlWindow(Gtk.Window):
