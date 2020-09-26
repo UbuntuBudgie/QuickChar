@@ -9,9 +9,13 @@ install_data(
     install_dir: join_paths(sysconfdir, 'xdg', 'autostart')
 )
 
-install_data(
-    'quickchar.desktop',
-    install_dir: join_paths(datadir, 'applications')
+substprog = find_program('subst.py')
+desktopfile = custom_target('desktopfile',
+  output : 'quickchar.desktop',
+  input : 'quickchar.desktop.in',
+  command : [substprog, '@INPUT@', pkgdatadir, '@OUTPUT@'],
+  install : true,
+  install_dir : join_paths(datadir, 'applications')
 )
 
 install_data(

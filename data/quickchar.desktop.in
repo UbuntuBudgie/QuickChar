@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=QuickChar Control
-Exec=/usr/lib/quickchar/quickchar control
+Exec=PATH_LOC/quickchar control
 Icon=gnome-characters
 Categories=GNOME;GTK;Utility;
 Keywords=characters;unicode;punctuation;letters;
