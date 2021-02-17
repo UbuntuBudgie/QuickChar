@@ -6,7 +6,7 @@ install_data(
 
 install_data(
     'quickchar-autostart.desktop',
-    install_dir: join_paths(sysconfdir, 'xdg', 'autostart')
+    install_dir: xdg_appdir
 )
 
 substprog = find_program('subst.py')
