@@ -23,6 +23,11 @@ install_data(
     install_dir: join_paths(datadir, 'budgie-extras-daemon')
 )
 
+install_data(
+    'quickchar.svg',
+    install_dir: join_paths(datadir, 'icons', 'hicolor', 'scalable', 'apps'),
+)
+
 meson.add_install_script(
   'meson_post_install.py',
   datadir,
