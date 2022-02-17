@@ -24,8 +24,8 @@ install_data(
 )
 
 install_data(
-    'quickchar.svg',
-    install_dir: join_paths(datadir, 'icons', 'hicolor', 'scalable', 'apps'),
+    'org.ubuntubudgie.quickchar.svg'
+    install_dir: join_paths(datadir, 'icons', 'hicolor', 'scalable', 'apps')
 )
 
 meson.add_install_script(
