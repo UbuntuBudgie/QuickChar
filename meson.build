@@ -14,6 +14,7 @@ libdir = join_paths(prefix, get_option('libdir'))
 datadir = join_paths(prefix, get_option('datadir'))
 sysconfdir = join_paths(prefix, get_option('sysconfdir'))
 pkgdatadir = join_paths(libdir, application_id)
+xdg_appdir = join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
 
 
 subdir('src')

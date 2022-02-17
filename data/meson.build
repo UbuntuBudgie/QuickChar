@@ -24,7 +24,7 @@ install_data(
 )
 
 install_data(
-    'org.ubuntubudgie.quickchar.svg'
+    'org.ubuntubudgie.quickchar.svg',
     install_dir: join_paths(datadir, 'icons', 'hicolor', 'scalable', 'apps')
 )
 
